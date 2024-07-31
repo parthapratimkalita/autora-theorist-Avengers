@@ -1,49 +1,119 @@
-"""
-Example Theorist
-"""
 from typing import Union
 
-from autora.theorist.bms import BMSRegressor
-from autora.experiment_runner.synthetic.psychophysics.weber_fechner_law import weber_fechner_law
 import numpy as np
+import pandas as pd
 from sklearn.base import BaseEstimator
-import matplotlib.pyplot as plt
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
-from sklearn.preprocessing import PolynomialFeatures
-from sklearn.linear_model import LinearRegression
 
 
-class Bayesian():
-    def __init__(self, degree: int = 3):
-      self.poly = PolynomialFeatures(degree=degree, include_bias=False)
-      self.model = BayesianRegression()
+class ParabolaRegression(BaseEstimator):
+    """
+    Example Theorist
+    """
 
-    def fit(self, x, y):
-      features = self.poly.fit_transform(x, y)
-      self.model.fit(features, y)
-      return self
+    def __init__(self):
+      self.coefficients = None
 
-    def predict(self, x):
-      features = self.poly.fit_transform(x)
-      return self.model.predict(features)
+    def fit(self, X: Union[pd.DataFrame, np.ndarray], y: Union[pd.DataFrame, np.ndarray]):
+      """
+      Fit the quadratic model to the data.
+
+      X: array-like, shape (n_samples, n_features)
+          Training data.
+      y: array-like, shape (n_samples,)
+          Target values.
+      """
+
+      # Ensure X is a 2D numpy array
+      X = np.asarray(X)
+
+      # Create the design matrix for quadratic regression
+      n_samples, n_features = X.shape
+
+      # Start with the intercept term (column of ones)
+      A = np.ones((n_samples, 1))
+
+      # Add the linear terms
+      A = np.hstack([A, X])
+
+      # Add the quadratic terms
+      for i in range(n_features):
+        for j in range(i, n_features):
+          A = np.hstack([A, (X[:, i] * X[:, j]).reshape(-1, 1)])
+
+      # Calculate the coefficients using the normal equation
+      self.coefficients = np.linalg.lstsq(A, y, rcond=None)[0]
+
+    def predict(self, X: Union[pd.DataFrame, np.ndarray]) -> Union[pd.DataFrame, np.ndarray]:
+      """
+      Predict using the quadratic model.
+
+      X: array-like, shape (n_samples, n_features)
+          Samples to predict.
+
+      Returns
+      -------
+      y_pred: array, shape (n_samples,)
+          Predicted values.
+      """
+
+      # Ensure X is a 2D numpy array
+      X = np.asarray(X)
+
+      # Create the design matrix for prediction
+      n_samples, n_features = X.shape
+
+      # Start with the intercept term (column of ones)
+      A = np.ones((n_samples, 1))
+
+      # Add the linear terms
+      A = np.hstack([A, X])
+
+      # Add the quadratic terms
+      for i in range(n_features):
+        for j in range(i, n_features):
+          A = np.hstack([A, (X[:, i] * X[:, j]).reshape(-1, 1)])
+
+      # Predict using the fitted coefficients
+      y_pred = A @ self.coefficients
+
+      return y_pred
+
+    '''
+    def print_eqn(self):
+      """
+      Print the discovered quadratic equation in human-readable format.
+      """
+      if self.coefficients is None:
+        print("The model is not fitted yet.")
+        return
+
+      a, b, c = self.coefficients
+      equation = f"y = {a.item():.4f} + {b.item():.4f}x + {c.item():.4f}x^2"
+      print("Discovered equation:", equation)
+    '''
 
     def print_eqn(self):
-        # Extract the coefficients and intercept
-        coeffs = self.model.coef_
-        intercept = self.model.intercept_
+      """
+      Print the discovered quadratic equation in human-readable format.
+      """
+      if self.coefficients is None:
+        print("The model is not fitted yet.")
+        return
 
-        # Handle multi-output case by iterating over each output's coefficients and intercept
-        if coeffs.ndim > 1:
-            for idx in range(coeffs.shape[0]):
-                equation = f"y{idx+1} = {intercept[idx]:.3f}"
-                feature_names = self.poly.get_feature_names_out()
-                for coef, feature in zip(coeffs[idx], feature_names):
-                    equation += f" + ({coef:.3f}) * {feature}"
-                print(equation)
-        else:
-            equation = f"y = {intercept:.3f}"
-            feature_names = self.poly.get_feature_names_out()
-            for coef, feature in zip(coeffs, feature_names):
-                equation += f" + ({coef:.3f}) * {feature}"
-            print(equation)
+      terms = ['1']  # Intercept term
+      idx = 1
+      n_features = int((len(self.coefficients) - 1) ** 0.5 * 2) - 1
+
+      # Linear terms
+      for i in range(n_features):
+        terms.append(f'{self.coefficients[idx].item():.4f}*x{i + 1}')
+        idx += 1
+
+      # Quadratic terms
+      for i in range(n_features):
+        for j in range(i, n_features):
+          terms.append(f'{self.coefficients[idx].item():.4f}*x{i + 1}*x{j + 1}')
+          idx += 1
+
+      equation = " + ".join(terms)
+      print("Discovered equation: y =", equation)
