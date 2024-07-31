@@ -7,13 +7,13 @@ from sklearn.base import BaseEstimator
 
 class ParabolaRegression(BaseEstimator):
     """
-    Example Theorist
+    Our Theorist
     """
 
     def __init__(self):
       self.coefficients = None
 
-    def fit(self, X: Union[pd.DataFrame, np.ndarray], y: Union[pd.DataFrame, np.ndarray]):
+    def fit(self, X: np.ndarray, y: np.ndarray):
       """
       Fit the quadratic model to the data.
 
@@ -26,24 +26,16 @@ class ParabolaRegression(BaseEstimator):
       # Ensure X is a 2D numpy array
       X = np.asarray(X)
 
-      # Create the design matrix for quadratic regression
-      n_samples, n_features = X.shape
+      # check if X is a numpy array
+      if not isinstance(X, np.ndarray):
+        raise ValueError("X must be a numpy array")
 
-      # Start with the intercept term (column of ones)
-      A = np.ones((n_samples, 1))
-
-      # Add the linear terms
-      A = np.hstack([A, X])
-
-      # Add the quadratic terms
-      for i in range(n_features):
-        for j in range(i, n_features):
-          A = np.hstack([A, (X[:, i] * X[:, j]).reshape(-1, 1)])
+      A = self.construct_design_matrix(X)
 
       # Calculate the coefficients using the normal equation
       self.coefficients = np.linalg.lstsq(A, y, rcond=None)[0]
 
-    def predict(self, X: Union[pd.DataFrame, np.ndarray]) -> Union[pd.DataFrame, np.ndarray]:
+    def predict(self, X: np.ndarray) -> np.ndarray:
       """
       Predict using the quadratic model.
 
@@ -59,24 +51,29 @@ class ParabolaRegression(BaseEstimator):
       # Ensure X is a 2D numpy array
       X = np.asarray(X)
 
-      # Create the design matrix for prediction
-      n_samples, n_features = X.shape
-
-      # Start with the intercept term (column of ones)
-      A = np.ones((n_samples, 1))
-
-      # Add the linear terms
-      A = np.hstack([A, X])
-
-      # Add the quadratic terms
-      for i in range(n_features):
-        for j in range(i, n_features):
-          A = np.hstack([A, (X[:, i] * X[:, j]).reshape(-1, 1)])
+      A = self.construct_design_matrix(X)
 
       # Predict using the fitted coefficients
       y_pred = A @ self.coefficients
 
       return y_pred
+
+    def construct_design_matrix(self, X):
+      X = np.asarray(X)
+      n_samples, n_features = X.shape
+      A = np.ones((n_samples, 1))
+      A = np.hstack([A, X])
+
+      for i in range(n_features):
+        for j in range(i, n_features):
+          log_term = np.log(X[:, i] + 1e-8)
+          A = np.hstack([A, log_term.reshape(-1, 1)])
+
+      for i in range(n_features):
+        for j in range(i, n_features):
+          A = np.hstack([A, (X[:, i] * X[:, j]).reshape(-1, 1)])
+
+      return A
 
     '''
     def print_eqn(self):
