@@ -14,29 +14,10 @@ from sklearn.preprocessing import PolynomialFeatures
 from sklearn.linear_model import LinearRegression
 
 
-
-
-class ExampleRegressor(BaseEstimator):
-    """
-    Include inline mathematics in docstring \\(x < 1\\) or $c = 3$
-    or block mathematics:
-
-    \\[
-        x + 1 = 3
-    \\]
-
-
-    $$
-    y + 1 = 4
-    $$
-
-    """
-
-
-
+class Bayesian():
     def __init__(self, degree: int = 3):
       self.poly = PolynomialFeatures(degree=degree, include_bias=False)
-      self.model = LinearRegression()
+      self.model = BayesianRegression()
 
     def fit(self, x, y):
       features = self.poly.fit_transform(x, y)
