@@ -26,6 +26,11 @@ dev = [
     "autora-core[dev]"
 ]
 
+test = [
+    "pytest",
+    "hypothesis"
+]
+
 [project.urls]
 homepage = "http://www.empiricalresearch.ai"
 repository = "https://github.com/parthapratimkalita/autora-theorist-Avengers"
