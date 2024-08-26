@@ -12,7 +12,7 @@ def test_fit():
     y = np.array([1, 2, 3])
     model.fit(X, y)
     assert model.coefficients is not None
-    assert len(model.coefficients) == 10  # 1 intercept + 2 linear + 2 log + 5 quadratic terms
+    assert len(model.coefficients) == 8  # 1 intercept + 2 linear + 2 log + 3 quadratic terms
 
 def test_predict():
     model = ParabolaRegression()
@@ -27,7 +27,7 @@ def test_construct_design_matrix():
     model = ParabolaRegression()
     X = np.array([[1, 2], [3, 4], [5, 6]])
     A = model._construct_design_matrix(X)
-    assert A.shape == (3, 10)  # 3 samples, 1 intercept + 2 linear + 2 log + 5 quadratic terms
+    assert A.shape == (3, 8)  # 3 samples, 1 intercept + 2 linear + 2 log + 3 quadratic terms
 
 def test_print_eqn(capsys):
     model = ParabolaRegression()
