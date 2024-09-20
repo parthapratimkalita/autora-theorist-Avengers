@@ -2,7 +2,9 @@
 # UPDATE THIS BEFORE PUBLISHING
 name = "autora-theorist-Avengers"
 description = "Our project"
-authors = [{ name = "Partha Pratim Kalita", email = "parthakalita142@gmail.com" }]
+authors = [{ name = "Partha Pratim Kalita", email = "parthakalita142@gmail.com" },
+           { name = "Krishnendu Bose", email = "kbuniverse299792@gmail.com" },
+          ]
 dynamic = ["version"]
 
 readme = "README.md"
