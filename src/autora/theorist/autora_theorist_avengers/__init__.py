@@ -8,6 +8,7 @@ class ParabolaRegression(BaseEstimator):
     """
 
     def __init__(self):
+      # Initialize coefficients to None  
       self.coefficients = None
 
     def fit(self, X: np.ndarray, y: np.ndarray):
@@ -59,23 +60,27 @@ class ParabolaRegression(BaseEstimator):
       # Extract the number of samples and features
       n_samples, n_features = X.shape
 
-      # Construct the design matrix
+      # Construct the design matrix with a column of ones for the intercept term
       A = np.ones((n_samples, 1))
 
       # Concatenate the original features, log-transformed features, and quadratic terms
       return np.hstack([A, X, self._log_transform(X), self._quadratic_transform(X)])
 
     def _log_transform(self, X: np.ndarray) -> np.ndarray:
+      # Apply log transformation to the features  
       return np.log(X + 1e-8)
 
     def _quadratic_transform(self, X: np.ndarray) -> np.ndarray:
+      # Extract the number of samples and features  
       n_samples, n_features = X.shape
       quadratic_terms = []
 
+      # Generate quadratic terms for each pair of features
       for i in range(n_features):
         for j in range(i, n_features):
           quadratic_terms.append((X[:, i] * X[:, j]).reshape(-1, 1))
-
+            
+      # Return the quadratic terms as a 2D array  
       return np.hstack(quadratic_terms) if quadratic_terms else np.empty((n_samples, 0))
 
     def print_eqn(self):
