@@ -2,9 +2,11 @@
 # UPDATE THIS BEFORE PUBLISHING
 name = "autora-theorist-Avengers"
 description = "Our project"
-authors = [{ name = "Partha Pratim Kalita", email = "parthakalita142@gmail.com" },
-           { name = "Krishnendu Bose", email = "kbuniverse299792@gmail.com" },
-          ]
+authors = [
+    { name = "Hannes Voß", email = "hannes.voss95@gmail.com" },
+    { name = "Partha Pratim Kalita", email = "parthakalita142@gmail.com" },
+    { name = "Krishnendu Bose", email = "kbuniverse299792@gmail.com" },
+]
 dynamic = ["version"]
 
 readme = "README.md"
@@ -17,11 +19,17 @@ dependencies = [
     "scikit-learn",
     "autora",
     "autora[theorist-bms]",
+    "pytest",
 ]
 
 [project.optional-dependencies]
 dev = [
     "autora-core[dev]"
+]
+
+test = [
+    "pytest",
+    "hypothesis"
 ]
 
 [project.urls]
